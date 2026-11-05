@@ -10,10 +10,10 @@ const { ObjectId } = require("mongodb");
 const { getDb } = require("../lib/mongodb");
 
 module.exports = async (req, res) => {
-  const db = await getDb();
-  const students = db.collection("students");
-
   try {
+    const db = await getDb();
+    const students = db.collection("students");
+
     // ---------- READ ----------
     if (req.method === "GET") {
       const filter = {};

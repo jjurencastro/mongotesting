@@ -160,3 +160,14 @@ MONGODB_URI="mongodb+srv://<user>:<password>@cluster0.xxxx.mongodb.net/" npm run
 
 > ⚠️ Never commit your Atlas password — it only goes in Vercel's env vars or
 > your local shell. The repo is protected by [.gitignore](.gitignore).
+
+### Troubleshooting (page stuck on "Loading…")
+1. Open `https://<project>.vercel.app/api/students` directly — it now returns
+   the real error as JSON.
+2. **MONGODB_URI missing?** Vercel → Project → Settings → Environment
+   Variables → add it, then **Redeploy** (env vars only apply to new
+   deployments).
+3. **Atlas Network Access:** must include `0.0.0.0/0` (Vercel IPs are dynamic).
+4. **Wrong credentials:** the Atlas DB user's username/password must be in the
+   connection string (URL-encode special characters in the password).
+5. Check Vercel → Project → Logs for function errors.

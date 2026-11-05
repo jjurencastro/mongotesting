@@ -40,9 +40,20 @@
     const rowsEl = document.getElementById("rows");
 
     async function load() {
-      const res = await fetch("/api/students");
-      const students = await res.json();
-      statusEl.textContent = `${students.length} student(s) in MongoDB`;
+      let students;
+      try {
+        const res = await fetch("/api/students");
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || res.statusText);
+        students = data;
+        statusEl.style.color = "#666";
+        statusEl.textContent = `${students.length} student(s) in MongoDB`;
+      } catch (err) {
+        statusEl.style.color = "#c0392b";
+        statusEl.textContent = "⚠️ API error: " + err.message;
+        rowsEl.innerHTML = "";
+        return;
+      }
       rowsEl.innerHTML = "";
       for (const s of students) {
         const tr = document.createElement("tr");
@@ -81,12 +92,20 @@
     document.getElementById("addForm").onsubmit = async (e) => {
       e.preventDefault();
       const f = e.target;
-      await fetch("/api/students", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: f.name.value, age: Number(f.age.value), course: f.course.value }),
-      });
-      f.reset();
+      try {
+        const res = await fetch("/api/students", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: f.name.value, age: Number(f.age.value), course: f.course.value }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || res.statusText);
+        f.reset();
+      } catch (err) {
+        statusEl.style.color = "#c0392b";
+        statusEl.textContent = "⚠️ " + err.message;
+        return;
+      }
       load();
     };
 
