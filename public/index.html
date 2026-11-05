@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MongoDB Students CRUD</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+    h1 { color: #00684a; }
+    form, .card { background: #f4f4f4; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+    input { padding: 0.4rem; margin: 0.2rem 0.2rem 0.2rem 0; }
+    button { padding: 0.45rem 0.8rem; cursor: pointer; border: none; border-radius: 4px; }
+    .add { background: #00684a; color: #fff; }
+    .del { background: #c0392b; color: #fff; }
+    .edit { background: #2980b9; color: #fff; }
+    table { width: 100%; border-collapse: collapse; }
+    td, th { border-bottom: 1px solid #ddd; padding: 0.5rem; text-align: left; }
+    #status { color: #666; font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>🍃 MongoDB Students CRUD</h1>
+  <p id="status">Loading…</p>
+
+  <form id="addForm">
+    <strong>Add student</strong><br />
+    <input name="name" placeholder="Name" required />
+    <input name="age" type="number" placeholder="Age" required style="width: 5rem" />
+    <input name="course" placeholder="Course (e.g. BSCS)" required />
+    <button class="add" type="submit">Create</button>
+  </form>
+
+  <table>
+    <thead><tr><th>Name</th><th>Age</th><th>Course</th><th>Actions</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <script>
+    const statusEl = document.getElementById("status");
+    const rowsEl = document.getElementById("rows");
+
+    async function load() {
+      const res = await fetch("/api/students");
+      const students = await res.json();
+      statusEl.textContent = `${students.length} student(s) in MongoDB`;
+      rowsEl.innerHTML = "";
+      for (const s of students) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${s.name}</td><td>${s.age}</td><td>${s.course}</td>`;
+        const actions = document.createElement("td");
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit age";
+        editBtn.className = "edit";
+        editBtn.onclick = async () => {
+          const age = prompt("New age for " + s.name, s.age);
+          if (age == null) return;
+          await fetch("/api/students", {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id: s._id, age: Number(age) }),
+          });
+          load();
+        };
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.className = "del";
+        delBtn.onclick = async () => {
+          if (!confirm("Delete " + s.name + "?")) return;
+          await fetch("/api/students?id=" + s._id, { method: "DELETE" });
+          load();
+        };
+
+        actions.append(editBtn, " ", delBtn);
+        tr.appendChild(actions);
+        rowsEl.appendChild(tr);
+      }
+    }
+
+    document.getElementById("addForm").onsubmit = async (e) => {
+      e.preventDefault();
+      const f = e.target;
+      await fetch("/api/students", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: f.name.value, age: Number(f.age.value), course: f.course.value }),
+      });
+      f.reset();
+      load();
+    };
+
+    load();
+  </script>
+</body>
+</html>

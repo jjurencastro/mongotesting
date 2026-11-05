@@ -1,0 +1,25 @@
+{
+  "name": "mongotesting",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "demo": "node crud-demo.js",
+    "dev": "node local-dev.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jjurencastro/mongotesting.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jjurencastro/mongotesting/issues"
+  },
+  "homepage": "https://github.com/jjurencastro/mongotesting#readme",
+  "dependencies": {
+    "mongodb": "^7.8.0"
+  }
+}
